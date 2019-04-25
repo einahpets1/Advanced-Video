@@ -55,13 +55,20 @@ class MediaCenter: NSObject {
     var renderView: UIView?
     weak var delegate: MediaCenterDelegate?
     
+    private var hasJoinChannel = false
+    
     init(delegate: MediaCenterDelegate) {
         super.init()
         self.delegate = delegate
     }
     
     func joinChannel(_ channel: Channel, renderView: UIView) {
-        agoraKit.joinChannel(byToken: nil, channelId: channel.channelName, info: nil, uid: 0, joinSuccess: nil)
+        if hasJoinChannel {
+            agoraKit.switchChannel(byToken: nil, channelId: channel.channelName, info: nil, uid: 0, joinSuccess: nil)
+        } else {
+            agoraKit.joinChannel(byToken: nil, channelId: channel.channelName, info: nil, uid: 0, joinSuccess: nil)
+            hasJoinChannel = true
+        }
         
         self.channel = channel
         self.renderView = renderView
@@ -73,9 +80,7 @@ class MediaCenter: NSObject {
         agoraKit.setupRemoteVideo(canvas)
     }
     
-    func leaveChannel(_ channel: Channel) {
-        agoraKit.leaveChannel(nil)
-        
+    func cleanupChannel(_ channel: Channel) {
         let emptyCanvas = AgoraRtcVideoCanvas()
         emptyCanvas.uid = channel.hostUid
         emptyCanvas.view = nil
@@ -83,6 +88,11 @@ class MediaCenter: NSObject {
         
         self.channel = nil
         self.renderView = nil
+    }
+    
+    func leaveChannel(_ channel: Channel) {
+        agoraKit.leaveChannel(nil)
+        hasJoinChannel = false
     }
 }
 

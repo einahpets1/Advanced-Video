@@ -67,7 +67,7 @@ extension ChannelPageViewController: UIPageViewControllerDelegate {
         
         previousVC.showCover(true)
         currentVC.showLoading(true)
-        mediaCenter.leaveChannel(previousVC.channel)
+        mediaCenter.cleanupChannel(previousVC.channel)
         mediaCenter.joinChannel(currentVC.channel, renderView: currentVC.hostRenderView)
     }
 }
@@ -93,6 +93,7 @@ extension ChannelPageViewController: MediaCenterDelegate {
 
 extension ChannelPageViewController: ChannelViewControllerDelegate {
     func channelVCNeedClose(_ channelVC: ChannelViewController) {
+        mediaCenter.cleanupChannel(channelVC.channel)
         mediaCenter.leaveChannel(channelVC.channel)
         navigationController?.popViewController(animated: true)
     }
